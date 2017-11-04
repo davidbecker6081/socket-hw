@@ -8,10 +8,21 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
+  io.emit('loggedIn', 'User has logged in.');
+
   socket.on('chat message', function(msg){
     io.emit('chat message', msg);
   });
+
+  socket.on('disconnect', () => {
+    io.emit('loggedOut', 'User disconnected')
+  })
+
+  socket.on('typing', (message) => {
+    socket.broadcast.emit('notify-typing', message)
+  })
 });
+
 
 http.listen(port, function(){
   console.log('listening on *:' + port);

@@ -12,6 +12,7 @@
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
       #messages { margin-bottom: 40px }
+      article { width: 100vw; height: 100vh; position: relative; z-index: 9999; background-color: blue; }
     </style>
   </head>
   <body>
@@ -24,6 +25,15 @@
     <script>
       $(function () {
         var socket = io();
+
+        // $(window).on('load', () => {
+        //   $('body').append(
+        //     `<article>
+        //       <p>Pick a username</p>
+        //       <input type="text" placeholder="Username"/>
+        //       <button>Save</button>
+        //     </article>`)
+        // })
         $('form').submit(function(){
           socket.emit('chat message', $('#m').val());
           $('#m').val('');
@@ -33,6 +43,34 @@
           $('#messages').append($('<li>').text(msg));
           window.scrollTo(0, document.body.scrollHeight);
         });
+
+        socket.on('loggedOut', (message) => {
+          $('#messages').append($('<li>').text(message));
+        })
+
+        socket.on('loggedIn', (message) => {
+          $('#messages').append($('<li>').text(message));
+        })
+
+        socket.on('notify-typing', message => {
+          $('#messages').append($('<li class="typing">').text(message));
+
+          setTimeout(() => {
+            $('.typing').remove()
+          }, 2000)
+        })
+
+        $('#m').on('keyup', () => {
+          if ($('#m').val().length > 0) {
+            socket.emit('typing', 'User is typing...')
+          }
+        })
+        // socket.on('typing', (message) => {
+        //   $('#messages').append($('<li>').text(message));
+        // })
+        // $('form input').on('keyup', (e) => {
+        //
+        // })
       });
     </script>
   </body>
